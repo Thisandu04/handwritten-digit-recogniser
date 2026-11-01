@@ -7,7 +7,7 @@ A CNN-based handwritten digit classifier trained on MNIST, with a Streamlit app 
 - [x] **Week 5:** Dataset analysis and dense baseline
 - [ ] **Week 6:** CNN design, training and baseline comparison
 - [ ] **Week 7:** Test evaluation, error analysis and report
-- [ ] **Week 8:** Streamlit app, tests, documentation and demo
+- [ ] **Week 8:** Streamlit app, tests, documentation and demo of the project
 
 ---
 
