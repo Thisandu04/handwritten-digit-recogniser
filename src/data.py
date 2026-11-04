@@ -26,3 +26,7 @@ def make_train_val_split(x_train, y_train, val_fraction=VAL_FRACTION, seed=SEED)
         random_state=seed,
         stratify=y_train,
     )
+
+def add_channel_axis(x):
+    """(N, 28, 28) -> (N, 28, 28, 1). Spatial layout is kept for the CNN."""
+    return np.expand_dims(x, axis=-1)
