@@ -1,0 +1,28 @@
+[
+  {
+    "run_id": "dense_baseline",
+    "parameters": 101770,
+    "train_seconds": 20.4,
+    "best_epoch": 9,
+    "val_loss": 0.09894827008247375,
+    "val_accuracy": 0.9736666666666667,
+    "val_errors": 158,
+    "n_val": 6000,
+    "latency_median_ms": 6.089000031352043,
+    "latency_p95_ms": 6.642104999627915,
+    "batch_ms_per_image": 0.024945616663899273
+  },
+  {
+    "run_id": "cnn_baseline",
+    "parameters": 225034,
+    "train_seconds": 196.3,
+    "best_epoch": 5,
+    "val_loss": 0.048649415373802185,
+    "val_accuracy": 0.9865,
+    "val_errors": 81,
+    "n_val": 6000,
+    "latency_median_ms": 25.69959996617399,
+    "latency_p95_ms": 35.974379983963445,
+    "batch_ms_per_image": 0.07605091666725154
+  }
+]
