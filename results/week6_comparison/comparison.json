@@ -8,21 +8,34 @@
     "val_accuracy": 0.9736666666666667,
     "val_errors": 158,
     "n_val": 6000,
-    "latency_median_ms": 6.089000031352043,
-    "latency_p95_ms": 6.642104999627915,
-    "batch_ms_per_image": 0.024945616663899273
+    "latency_median_ms": 6.1912499950267375,
+    "latency_p95_ms": 6.491954938974231,
+    "batch_ms_per_image": 0.02528231666656211
   },
   {
     "run_id": "cnn_baseline",
     "parameters": 225034,
-    "train_seconds": 196.3,
+    "train_seconds": 188.7,
     "best_epoch": 5,
     "val_loss": 0.048649415373802185,
     "val_accuracy": 0.9865,
     "val_errors": 81,
     "n_val": 6000,
-    "latency_median_ms": 25.69959996617399,
-    "latency_p95_ms": 35.974379983963445,
-    "batch_ms_per_image": 0.07605091666725154
+    "latency_median_ms": 22.41820003837347,
+    "latency_p95_ms": 27.73854001425206,
+    "batch_ms_per_image": 0.07552386667036141
+  },
+  {
+    "run_id": "cnn_no_pool",
+    "parameters": 4738826,
+    "train_seconds": 880.8,
+    "best_epoch": 3,
+    "val_loss": 0.056343648582696915,
+    "val_accuracy": 0.9845,
+    "val_errors": 93,
+    "n_val": 6000,
+    "latency_median_ms": 93.66409998619929,
+    "latency_p95_ms": 108.0403699132148,
+    "batch_ms_per_image": 0.18789833333964148
   }
 ]

@@ -1,6 +1,6 @@
 {
   "run_id": "cnn_baseline",
-  "timestamp": "2026-11-04T21:42:12",
+  "timestamp": "2026-11-08T15:54:47",
   "seed": 42,
   "split": {
     "val_fraction": 0.1,
@@ -12,7 +12,8 @@
   "preprocessing": "pixels / 255.0 -> float32 in [0, 1]; channel axis added -> (28, 28, 1)",
   "architecture": {
     "type": "cnn",
-    "blocks": "2 x (Conv2D 3x3 ReLU -> MaxPool 2x2); filters 32, 64",
+    "blocks": "2 x Conv2D 3x3 ReLU; filters 32, 64",
+    "pooling": "max 2x2 after each conv",
     "head": "Flatten -> Dense(128, ReLU) -> Dense(10, softmax)",
     "padding": "valid"
   },
@@ -24,7 +25,7 @@
   "loss": "sparse_categorical_crossentropy",
   "batch_size": 128,
   "epochs": 15,
-  "training_seconds": 196.3,
+  "training_seconds": 188.7,
   "selection_criterion": "lowest validation loss",
   "best_epoch": 5,
   "best_val_loss": 0.048649415373802185,
