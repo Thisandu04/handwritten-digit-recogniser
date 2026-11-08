@@ -26,6 +26,8 @@ def parse_args():
     p.add_argument("--epochs", type=int, default=15)
     p.add_argument("--batch-size", type=int, default=128)
     p.add_argument("--seed", type=int, default=SEED)
+    p.add_argument("--no-pool", action="store_true",
+                   help="ablation: remove both max-pooling layers")
     return p.parse_args()
 
 
@@ -45,7 +47,7 @@ def main():
         add_channel_axis(scale_pixels(x_train)), y_train
     )
 
-    model = build_cnn_model()
+    model = build_cnn_model(use_pooling=not args.no_pool)
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=args.lr),
         loss="sparse_categorical_crossentropy",
@@ -81,7 +83,8 @@ def main():
         "preprocessing": "pixels / 255.0 -> float32 in [0, 1]; channel axis added -> (28, 28, 1)",
         "architecture": {
             "type": "cnn",
-            "blocks": "2 x (Conv2D 3x3 ReLU -> MaxPool 2x2); filters 32, 64",
+            "blocks": "2 x Conv2D 3x3 ReLU; filters 32, 64",
+            "pooling": "none" if args.no_pool else "max 2x2 after each conv",
             "head": "Flatten -> Dense(128, ReLU) -> Dense(10, softmax)",
             "padding": "valid",
         },
