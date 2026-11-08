@@ -4,4 +4,5 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 .env
-.keras/
+.keras/models/cnn_no_pool_best.keras
+models/*_seed_*.keras
