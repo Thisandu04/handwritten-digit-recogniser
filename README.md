@@ -5,7 +5,7 @@ A CNN-based handwritten digit classifier trained on MNIST, with a Streamlit app 
 ## Progress
 
 - [x] **Week 5:** Dataset analysis and dense baseline
-- [ ] **Week 6:** CNN design, training and baseline comparison
+- [x] **Week 6:** CNN design, training and baseline comparison
 - [ ] **Week 7:** Test evaluation, error analysis and report
 - [ ] **Week 8:** Streamlit app, tests, documentation and demo of the project
 
@@ -116,6 +116,129 @@ Each run writes `results/<run_id>/run_record.json` (seed, split, architecture, p
 ### Documents
 
 - Technical note: `results/week5_technical_note.md`
+
+---
+
+## Week 6: CNN design and controlled training
+
+### Objective
+
+Design a compact CNN, train it under the same protocol as the Week 5 dense baseline, compare the two fairly on the same validation set, and verify that the saved model reloads independently of the training session.
+
+### CNN architecture
+
+| # | Layer | Output shape | Parameters |
+|---|---|---|---|
+| 1 | Input | (28, 28, 1) | 0 |
+| 2 | Conv2D (32 filters, 3x3, ReLU) | (26, 26, 32) | 320 |
+| 3 | MaxPooling2D (2x2) | (13, 13, 32) | 0 |
+| 4 | Conv2D (64 filters, 3x3, ReLU) | (11, 11, 64) | 18,496 |
+| 5 | MaxPooling2D (2x2) | (5, 5, 64) | 0 |
+| 6 | Flatten | (1600) | 0 |
+| 7 | Dense (128, ReLU) | (128) | 204,928 |
+| 8 | Dense (10, softmax) | (10) | 1,290 |
+| | **Total** | | **225,034** |
+
+Output sizes use `floor((N + 2P - K) / S) + 1` with P = 0 and S = 1; convolution parameters are `(kh x kw x in_channels + 1) x filters`. The values were calculated by hand and then checked against `model.summary()` (saved in `results/cnn_baseline/model_summary.txt`).
+
+**Design rationale**
+- **Input (28, 28, 1):** 28x28 pixels with one grayscale channel; the spatial layout is kept, unlike the dense model.
+- **Two conv + pool blocks:** the first layer detects small local patterns and the second combines them; enough for MNIST while keeping the model compact.
+- **Max pooling:** reduces computation and gives some tolerance to small shifts, at the cost of spatial detail.
+- **Dense(128) head and 10-unit softmax output:** the same head width as the baseline, and one output per mutually exclusive digit class.
+
+### Training protocol
+
+Identical to Week 5 except for the architecture and the added channel axis:
+
+| Setting | Value |
+|---|---|
+| Split | Same stratified 90/10 split, seed 42 (verified identical to Week 5) |
+| Preprocessing | Pixels / 255, shape (28, 28, 1) |
+| Optimiser | Adam, learning rate 0.001 |
+| Batch size / epochs | 128 / 15 |
+| Selection rule | Lowest validation loss |
+| Seed | 42 (extra seeds 1, 2, 3 for stability) |
+
+### Commands
+
+| Task | Command |
+|---|---|
+| Check CNN setup (shapes, same split) | `python -m src.check_cnn_setup` |
+| Train the CNN | `python -m src.train_cnn --run-id cnn_baseline` |
+| Train the no-pooling ablation | `python -m src.train_cnn --run-id cnn_no_pool --no-pool` |
+| Verify reload (two separate processes) | `python -m src.verify_reload --run-id cnn_baseline --save` then `python -m src.verify_reload --run-id cnn_baseline` |
+| Compare models | `python -m src.compare_models --runs dense_baseline cnn_baseline cnn_no_pool` |
+| Seed stability summary | `python -m src.summarise_seeds` |
+| Translation test (dense vs CNN) | `python -m src.investigate_shift_cnn` |
+
+### Results (validation set, measured, seed 42, single run)
+
+| Metric | Dense baseline | CNN baseline | CNN (no pooling) |
+|---|---|---|---|
+| Parameters | 101,770 | 225,034 | 4,738,826 |
+| Training time | 20.4 s | 188.7 s | 880.8 s |
+| Best epoch | 9 | 5 | 3 |
+| Validation loss | 0.0989 | 0.0486 | 0.0563 |
+| Validation accuracy | 97.37% | 98.65% | 98.45% |
+| Validation errors (of 6,000) | 158 | 81 | 93 |
+| Latency, single image | 6.19 ms | 22.42 ms | 93.66 ms |
+| Latency, batch (per image) | 0.0253 ms | 0.0755 ms | 0.1879 ms |
+
+Plots: `results/cnn_baseline/learning_curves.png` and `results/week6_comparison/validation_curves_comparison.png`.
+
+**Observations**
+- **Accuracy:** the CNN made 77 fewer errors than the dense model (about 49% fewer), and its validation loss was about half.
+- **Cost:** the CNN has 2.2x the parameters but took 9.3x longer to train and was 3.6x slower on a single image, so parameter count understates its computational cost.
+- **Pooling ablation:** removing both pooling layers raised parameters about 21x (the flatten layer grew from 1,600 to 36,864 values), slowed training about 4.7x and gave slightly more errors (93 vs 81). The data supports "no measurable benefit for a large cost"; the 12-error gap alone is not evidence that pooling improves accuracy.
+- **Early best epochs:** the CNN peaked at epoch 5 and the no-pool model at epoch 3 of 15, which suggests later epochs overfit (see the learning curves).
+
+### Stability across seeds
+
+Four seeds per model (42, 1, 2, 3); the split stays fixed and only initialisation and batch order change.
+
+| Model | Mean val accuracy | Std | 
+|---|---|---|
+| Dense |0.9736|0.0007|
+| CNN |0.9874|0.0009|
+
+*(State whether the two ranges overlap. With four seeds the standard deviation is crude, so report the range too.)*
+
+### Reload verification
+
+The saved CNN was reloaded in a separate Python process. Predictions on a fixed 10-image validation sample matched the saved reference outputs, and the reloaded model's validation loss and accuracy matched the training-time record.
+
+### Translation sensitivity (exploratory, validation set)
+
+Horizontal shifts of -4 to +4 pixels with zero fill, defined in advance. These transformed images are not an independent real-world benchmark.
+
+| Shift (px) | Dense accuracy | CNN accuracy |
+|---|---|---|
+| -4 |0.3621|0.7438|
+| -2 |0.7400|0.9583|
+| -1 |0.9403|0.9818|
+| 0 |0.9736|0.9865|
+| +1 |0.9505|0.9825|
+| +2 |0.8289|0.9606|
+| +4 |0.3458|0.6971|
+
+Plot: `results/week6_shift/shift_sensitivity_dense_vs_cnn.png`. *(Describe how each model degrades. Pooling gives some tolerance to small shifts, not full invariance, and the CNN was never trained on shifted digits.)*
+
+### Repository notes
+
+- `models/cnn_no_pool_best.keras` (54 MB) and the `*_seed_*.keras` checkpoints are excluded by `.gitignore`; their `run_record.json` files are committed. Recreate any of them with the commands above.
+- Large or reproducible model files are kept out of Git to keep the repository small.
+
+### Limitations (Week 6)
+
+- All comparisons use the validation set, which was also used to select checkpoints, so the numbers are slightly optimistic. The test set is untouched until Week 7.
+- Only four seeds per model; small differences should not be over-interpreted.
+- Latency and training times were measured on one CPU while other programs were running.
+- The shift test is exploratory and uses a single transformation type.
+
+### Documents
+
+- Week 6 notes: `results/week6_notes.md`
 
 ### References
 
