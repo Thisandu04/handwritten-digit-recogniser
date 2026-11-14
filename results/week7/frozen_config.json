@@ -1,0 +1,33 @@
+{
+  "frozen_at": "2026-11-14T12:32:32",
+  "run_id": "cnn_baseline",
+  "model_path": "models\\cnn_baseline_best.keras",
+  "model_sha256": "f5d262d844813d17b1c5f2bd5924e38a998a1bf3384ec105f8e7ec5030e70e6e",
+  "git_commit_at_freeze": "2ba1953e6b3fd3ddfa57b54857a6f91aa8b70136",
+  "seed": 42,
+  "architecture": {
+    "type": "cnn",
+    "blocks": "2 x Conv2D 3x3 ReLU; filters 32, 64",
+    "pooling": "max 2x2 after each conv",
+    "head": "Flatten -> Dense(128, ReLU) -> Dense(10, softmax)",
+    "padding": "valid"
+  },
+  "parameter_count": 225034,
+  "preprocessing": "pixels / 255.0 -> float32 in [0, 1]; channel axis added -> (28, 28, 1)",
+  "optimiser": {
+    "name": "Adam",
+    "learning_rate": 0.001
+  },
+  "batch_size": 128,
+  "epochs": 15,
+  "selection_criterion": "lowest validation loss",
+  "selected_epoch": 5,
+  "validation_loss": 0.048649415373802185,
+  "validation_accuracy": 0.9865000247955322,
+  "versions": {
+    "tensorflow": "2.22.0-rc0",
+    "keras": "3.16.0.dev2026102704"
+  },
+  "evaluation_script": "src/evaluate.py",
+  "test_set_used_before_freeze": false
+}
