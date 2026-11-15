@@ -1,0 +1,164 @@
+{
+  "set": "validation",
+  "baseline_accuracy": 0.9865,
+  "results": [
+    {
+      "family": "rotation (deg)",
+      "level": -30,
+      "accuracy": 0.8346666666666667,
+      "mean_top_score": 0.912366509437561
+    },
+    {
+      "family": "rotation (deg)",
+      "level": -15,
+      "accuracy": 0.9716666666666667,
+      "mean_top_score": 0.9768727421760559
+    },
+    {
+      "family": "rotation (deg)",
+      "level": 15,
+      "accuracy": 0.9675,
+      "mean_top_score": 0.977406919002533
+    },
+    {
+      "family": "rotation (deg)",
+      "level": 30,
+      "accuracy": 0.8516666666666667,
+      "mean_top_score": 0.9265936613082886
+    },
+    {
+      "family": "scale (factor)",
+      "level": 0.6,
+      "accuracy": 0.6368333333333334,
+      "mean_top_score": 0.7837008237838745
+    },
+    {
+      "family": "scale (factor)",
+      "level": 0.8,
+      "accuracy": 0.967,
+      "mean_top_score": 0.9655425548553467
+    },
+    {
+      "family": "scale (factor)",
+      "level": 1.2,
+      "accuracy": 0.9721666666666666,
+      "mean_top_score": 0.9825025200843811
+    },
+    {
+      "family": "scale (factor)",
+      "level": 1.4,
+      "accuracy": 0.898,
+      "mean_top_score": 0.9494428634643555
+    },
+    {
+      "family": "vertical shift (px)",
+      "level": -4,
+      "accuracy": 0.49583333333333335,
+      "mean_top_score": 0.8550835251808167
+    },
+    {
+      "family": "vertical shift (px)",
+      "level": -2,
+      "accuracy": 0.9215,
+      "mean_top_score": 0.9628972411155701
+    },
+    {
+      "family": "vertical shift (px)",
+      "level": 2,
+      "accuracy": 0.9271666666666667,
+      "mean_top_score": 0.9549992084503174
+    },
+    {
+      "family": "vertical shift (px)",
+      "level": 4,
+      "accuracy": 0.4886666666666667,
+      "mean_top_score": 0.8328959345817566
+    },
+    {
+      "family": "blur (sigma)",
+      "level": 0.5,
+      "accuracy": 0.9855,
+      "mean_top_score": 0.9895067811012268
+    },
+    {
+      "family": "blur (sigma)",
+      "level": 1.0,
+      "accuracy": 0.9761666666666666,
+      "mean_top_score": 0.9692383408546448
+    },
+    {
+      "family": "blur (sigma)",
+      "level": 1.5,
+      "accuracy": 0.9275,
+      "mean_top_score": 0.8821556568145752
+    },
+    {
+      "family": "noise (std)",
+      "level": 0.1,
+      "accuracy": 0.984,
+      "mean_top_score": 0.9892451763153076
+    },
+    {
+      "family": "noise (std)",
+      "level": 0.2,
+      "accuracy": 0.9815,
+      "mean_top_score": 0.9795854687690735
+    },
+    {
+      "family": "noise (std)",
+      "level": 0.4,
+      "accuracy": 0.8571666666666666,
+      "mean_top_score": 0.8556086421012878
+    },
+    {
+      "family": "contrast (factor)",
+      "level": 0.6,
+      "accuracy": 0.9865,
+      "mean_top_score": 0.9764147996902466
+    },
+    {
+      "family": "contrast (factor)",
+      "level": 0.3,
+      "accuracy": 0.9848333333333333,
+      "mean_top_score": 0.8215146660804749
+    },
+    {
+      "family": "contrast (factor)",
+      "level": 0.15,
+      "accuracy": 0.9711666666666666,
+      "mean_top_score": 0.3802279531955719
+    },
+    {
+      "family": "inversion (0=orig)",
+      "level": 1,
+      "accuracy": 0.27316666666666667,
+      "mean_top_score": 0.76973956823349
+    }
+  ],
+  "non_digit_probes": {
+    "blank (all 0)": {
+      "pred": 1,
+      "top_score": 0.14554241299629211
+    },
+    "all white (all 1)": {
+      "pred": 0,
+      "top_score": 0.7110841870307922
+    },
+    "uniform noise (200)": {
+      "mean_top_score": 0.4152909815311432,
+      "pred_counts": [
+        0,
+        0,
+        14,
+        69,
+        1,
+        20,
+        0,
+        12,
+        84,
+        0
+      ]
+    }
+  },
+  "note": "exploratory; not an independent real-world benchmark"
+}

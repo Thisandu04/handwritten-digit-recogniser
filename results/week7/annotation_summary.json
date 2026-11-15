@@ -1,0 +1,13 @@
+{
+  "n_errors": 97,
+  "n_annotated": 97,
+  "counts": {
+    "ambiguous_stroke": 31,
+    "unusual_shape": 35,
+    "slanted_or_rotated": 9,
+    "thin_or_faint": 10,
+    "broken_or_cut_off": 6,
+    "label_questionable": 4,
+    "other": 2
+  }
+}

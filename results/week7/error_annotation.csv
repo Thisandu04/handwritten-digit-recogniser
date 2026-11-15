@@ -1,0 +1,98 @@
+test_index,true,pred,category,notes
+321,2,7,unusual_shape,2 with a looped curl at the bottom
+340,5,3,ambiguous_stroke,narrow S-like 5
+449,3,5,ambiguous_stroke,3 with a flat top bar like a 5
+495,8,6,unusual_shape,very thick strokes with filled loops
+583,2,7,unusual_shape,scribbled 2 with an extra loop
+619,1,8,unusual_shape,very thick slanted blob-like 1
+726,7,5,ambiguous_stroke,jagged 7 with a zigzag shape
+882,9,7,thin_or_faint,thin slanted 9 with an open top
+947,8,9,ambiguous_stroke,thick 8 with a small upper loop like a 9
+1014,6,5,slanted_or_rotated,6 rotated to lie almost sideways
+1039,7,2,unusual_shape,7 with a middle crossbar
+1112,4,6,unusual_shape,thick blob-like 4
+1226,7,2,unusual_shape,7 with a bottom bar like a 2
+1232,9,4,ambiguous_stroke,9 with an open top like a 4
+1247,9,5,ambiguous_stroke,9 with a loop that is not fully closed
+1260,7,1,ambiguous_stroke,7 with a very short top stroke
+1299,5,7,unusual_shape,5 with an unusual top and hook
+1319,8,0,ambiguous_stroke,8 with an open upper loop
+1393,5,3,slanted_or_rotated,slanted 5 with a long top stroke
+1522,7,9,ambiguous_stroke,7 with a hook like a 9
+1621,0,6,ambiguous_stroke,0 with a gap at the top left like a 6
+1709,9,5,thin_or_faint,thin small 9
+1790,2,7,unusual_shape,very thick blob-like 2
+1901,9,4,thin_or_faint,thin small 9 with an open top
+1987,0,9,other,looks like a clear 0 to me; cause not visible
+2035,5,3,ambiguous_stroke,5 with a flat top that looks like a 3
+2040,5,6,slanted_or_rotated,5 rotated onto its side
+2070,7,1,ambiguous_stroke,thin 7 with a hook
+2135,6,1,thin_or_faint,thin narrow slanted 6
+2280,3,5,unusual_shape,angular 3 that looks like a B
+2329,0,2,unusual_shape,0 with an extra looped tail
+2387,9,1,ambiguous_stroke,tall narrow 9 with a small loop
+2414,9,4,unusual_shape,messy 9 with scribbled strokes
+2462,2,0,label_questionable,thick blob with a hole; looks like a 0 to me
+2488,2,4,unusual_shape,scribbled 2 with extra strokes
+2597,5,3,ambiguous_stroke,5 shaped like a 3 or an S
+2654,6,1,ambiguous_stroke,6 with no visible loop; looks like an l
+2720,9,4,ambiguous_stroke,9 with an open top like a 4
+2758,8,0,ambiguous_stroke,8 with a small upper loop
+2760,9,4,slanted_or_rotated,strongly slanted thin 9
+2770,3,7,unusual_shape,thick sideways arrow-like 3
+2896,8,0,ambiguous_stroke,8 with an open top
+2921,3,8,unusual_shape,3 with extra loops on the left
+2927,3,7,slanted_or_rotated,slanted angular 3
+2939,9,7,unusual_shape,curly 9 with an unusual tail
+2953,3,5,ambiguous_stroke,thick 3 with a flat top
+3060,9,7,thin_or_faint,tiny thin 9
+3073,1,2,unusual_shape,1 with a flag and a base serif
+3289,8,9,unusual_shape,thick blob-like 8
+3422,6,0,unusual_shape,thick 6 with a closed hole like a 0
+3503,9,1,ambiguous_stroke,narrow 9 with a small loop
+3520,6,4,label_questionable,hook with a blob end; hard to read as a 6
+3559,8,5,ambiguous_stroke,thin 8 with an open loop
+3574,0,7,thin_or_faint,thin narrow 0
+3727,8,9,unusual_shape,thick messy 8
+3762,6,8,thin_or_faint,thin 6 with a long top stroke
+3778,5,8,unusual_shape,5 with a long flat top bar
+3808,7,8,unusual_shape,7 with a serif and a middle bar
+3869,9,4,ambiguous_stroke,bold 9 shaped like a 4
+3906,1,3,unusual_shape,1 with a flag and a base serif
+3985,9,4,ambiguous_stroke,9 with an open top
+4027,7,1,ambiguous_stroke,thin 7 with a short top stroke
+4075,8,6,ambiguous_stroke,8 with an open upper loop
+4176,2,7,unusual_shape,scribbled 2 with a horizontal slant
+4205,2,0,unusual_shape,2 with a rounded loop
+4350,2,3,unusual_shape,angular Z-like 2
+4497,8,7,label_questionable,wedge shape; hard to read as an 8
+4500,9,1,ambiguous_stroke,narrow 9 with a tiny loop
+4740,3,5,ambiguous_stroke,3 that looks like a 5 or an S
+4751,4,6,unusual_shape,closed-top 4 with a long left stroke
+4761,9,8,unusual_shape,9 with extra loops
+4807,8,0,ambiguous_stroke,slanted 8 with an open top
+4956,8,4,label_questionable,looks like a 4 with a small loop
+5127,2,7,unusual_shape,2 with a loop and messy lines
+5450,0,7,broken_or_cut_off,0 with gaps in the stroke
+5634,2,3,ambiguous_stroke,thick 2 with a rounded top
+5937,5,3,unusual_shape,thick blob-like 5
+5997,5,9,ambiguous_stroke,5 with a closed loop like a 9
+6011,3,5,ambiguous_stroke,thick 3 with a flat top
+6532,0,7,broken_or_cut_off,0 with speckled gaps in the stroke
+6560,9,5,broken_or_cut_off,noisy broken 9
+6571,9,7,thin_or_faint,thin broken 9
+6572,1,7,thin_or_faint,faint dotted 1
+6576,7,1,thin_or_faint,faint broken 7
+6597,0,7,broken_or_cut_off,0 with a speckled broken stroke
+6651,0,8,slanted_or_rotated,thin slanted 0 with a tail
+6783,1,6,slanted_or_rotated,thick slanted 1
+8408,8,5,unusual_shape,8 with a long horizontal line through it
+9009,7,2,unusual_shape,7 with a bar and a base like a Z
+9015,7,2,unusual_shape,7 with a bar and a base like a Z
+9587,9,4,other,stray dot above a normal-looking 9
+9634,0,8,slanted_or_rotated,slanted 0 with a stray dot
+9642,9,7,broken_or_cut_off,noisy broken 9
+9664,2,7,slanted_or_rotated,slanted smeared 2
+9692,9,7,broken_or_cut_off,noisy broken 9 with a stray dot
+9729,5,6,unusual_shape,5 with a loop under the top stroke
+9904,2,8,unusual_shape,2 with overlapping loops
