@@ -1,0 +1,34 @@
+{
+  "frozen_at": "2026-11-23T09:31:22",
+  "run_id": "cnn_aug_seed_42",
+  "model_path": "models\\cnn_aug_seed_42_best.keras",
+  "model_sha256": "50d4a3bb81e67f1cf4c24e273672135db1a149dab27b5667fe0b8b4ec564e319",
+  "git_commit_at_freeze": "bbc6f9f7326e55b38531504d8b5db5969f316fce",
+  "seed": 42,
+  "architecture": {
+    "type": "cnn",
+    "blocks": "2 x Conv2D 3x3 ReLU; filters 32, 64",
+    "pooling": "max 2x2 after each conv",
+    "head": "Flatten -> Dense(128, ReLU) -> Dense(10, softmax)",
+    "padding": "valid",
+    "augmentation": "RandomRotation(0.04) + RandomTranslation(0.1, 0.1) + RandomZoom(0.1), fill 0, training only"
+  },
+  "parameter_count": 225034,
+  "preprocessing": "pixels / 255.0 -> float32 in [0, 1]; channel axis added -> (28, 28, 1)",
+  "optimiser": {
+    "name": "Adam",
+    "learning_rate": 0.001
+  },
+  "batch_size": 128,
+  "epochs": 15,
+  "selection_criterion": "lowest validation loss",
+  "selected_epoch": 12,
+  "validation_loss": 0.03317590802907944,
+  "validation_accuracy": 0.9898333549499512,
+  "versions": {
+    "tensorflow": "2.22.0-rc0",
+    "keras": "3.16.0.dev2026102704"
+  },
+  "evaluation_script": "src/evaluate.py",
+  "test_set_used_before_freeze": false
+}
