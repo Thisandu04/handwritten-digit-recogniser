@@ -5,6 +5,7 @@ Transformations and severities are fixed here BEFORE running.
 These transformed images are NOT an independent real-world benchmark.
 Usage: python -m src.robustness
 """
+import argparse
 import json
 from pathlib import Path
 
@@ -16,7 +17,11 @@ from tensorflow import keras
 from src.data import (SEED, add_channel_axis, load_raw_mnist,
                       make_train_val_split, scale_pixels)
 
-OUT = Path("results/week7_robustness")
+_p = argparse.ArgumentParser()
+_p.add_argument("--model", default="models/cnn_baseline_best.keras")
+_p.add_argument("--out", default="results/week7_robustness")
+_args = _p.parse_args()
+OUT = Path(_args.out)
 OUT.mkdir(parents=True, exist_ok=True)
 
 
@@ -74,7 +79,7 @@ with open(OUT / "robustness_plan.json", "w") as f:
 # ---- Data and frozen model (test set unused) ----
 x_train, y_train, _, _ = load_raw_mnist()
 _, x_val, _, y_val = make_train_val_split(scale_pixels(x_train), y_train)
-model = keras.models.load_model("models/cnn_baseline_best.keras")
+model = keras.models.load_model(_args.model)
 
 
 def evaluate(x):
