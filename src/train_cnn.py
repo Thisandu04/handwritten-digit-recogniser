@@ -28,6 +28,8 @@ def parse_args():
     p.add_argument("--seed", type=int, default=SEED)
     p.add_argument("--no-pool", action="store_true",
                    help="ablation: remove both max-pooling layers")
+    p.add_argument("--augment", action="store_true",
+                   help="improvement experiment: training-time data augmentation")
     return p.parse_args()
 
 
@@ -47,7 +49,7 @@ def main():
         add_channel_axis(scale_pixels(x_train)), y_train
     )
 
-    model = build_cnn_model(use_pooling=not args.no_pool)
+    model = build_cnn_model(use_pooling=not args.no_pool, augment=args.augment)
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=args.lr),
         loss="sparse_categorical_crossentropy",
@@ -87,6 +89,8 @@ def main():
             "pooling": "none" if args.no_pool else "max 2x2 after each conv",
             "head": "Flatten -> Dense(128, ReLU) -> Dense(10, softmax)",
             "padding": "valid",
+            "augmentation": ("RandomRotation(0.04) + RandomTranslation(0.1, 0.1) + "
+                             "RandomZoom(0.1), fill 0, training only") if args.augment else "none",
         },
         "parameter_count": int(model.count_params()),
         "optimiser": {"name": "Adam", "learning_rate": args.lr},

@@ -48,7 +48,10 @@ def main():
     p.add_argument("--frozen", default="results/week7/frozen_config.json")
     p.add_argument("--force", action="store_true",
                    help="overwrite existing test results (document why in your report)")
+    p.add_argument("--out", default="results/week7")
     args = p.parse_args()
+    global OUT
+    OUT = Path(args.out)
 
     OUT.mkdir(parents=True, exist_ok=True)
     result_path = OUT / "test_results.json"

@@ -32,6 +32,7 @@ def git_commit():
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--run-id", default="cnn_baseline")
+    p.add_argument("--out", default="results/week7")
     args = p.parse_args()
 
     with open(Path("results") / args.run_id / "run_record.json") as f:
@@ -59,7 +60,7 @@ def main():
         "test_set_used_before_freeze": False,
     }
 
-    out = Path("results/week7")
+    out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     with open(out / "frozen_config.json", "w") as f:
         json.dump(frozen, f, indent=2)

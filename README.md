@@ -6,7 +6,7 @@ A CNN-based handwritten digit classifier trained on MNIST, with a Streamlit app 
 
 - [x] **Week 5:** Dataset analysis and dense baseline
 - [x] **Week 6:** CNN design, training and baseline comparison
-- [ ] **Week 7:** Test evaluation, error analysis and report
+- [x] **Week 7:** Test evaluation, error analysis and report
 - [ ] **Week 8:** Streamlit app, tests, documentation and demo of the project
 
 ---
@@ -239,6 +239,193 @@ Plot: `results/week6_shift/shift_sensitivity_dense_vs_cnn.png`. *(Describe how e
 ### Documents
 
 - Week 6 notes: `results/week6_notes.md`
+
+---
+
+## Week 7: Evaluation, error analysis and limitations
+
+### Objective
+
+Freeze the selected CNN, evaluate it once on the held-out MNIST test set, analyse per-class performance and misclassified images, check generalisation and robustness, and test one pre-registered improvement using validation data only.
+
+### Evaluation protocol
+
+- **Frozen model:** `models/cnn_baseline_best.keras` (seed 42, selected by lowest validation loss at epoch 5).
+- **Freeze record:** `results/week7/frozen_config.json` stores the model SHA-256, settings, validation metrics and git commit. It was committed and tagged `model-frozen` before the test set was used.
+- **Safeguards:** `src/evaluate.py` aborts if the model file no longer matches the frozen SHA-256 and refuses to overwrite existing test results without `--force`.
+- **Test set use:** one evaluation of the frozen model. No architecture, hyperparameter or epoch decision was made using test data.
+
+### Commands
+
+| Task | Command |
+|---|---|
+| Freeze the model | `python -m src.freeze_model --run-id cnn_baseline` |
+| Test evaluation (once) | `python -m src.evaluate` |
+| Error analysis (galleries, scores) | `python -m src.error_analysis` |
+| Summarise manual error categories | `python -m src.summarise_annotations` |
+| Training-validation gap check | `python -m src.investigate_overfitting` |
+| Robustness test (validation set) | `python -m src.robustness` |
+| Preview augmentation | `python -m src.preview_augmentation` |
+| Train augmented CNN (4 seeds) | `python -m src.train_cnn --run-id cnn_aug_seed_42 --augment` and `python -m src.train_cnn --run-id cnn_aug_seed_<n> --augment --seed <n>` |
+| Compare baseline vs augmented | `python -m src.compare_improvement` |
+| Freeze augmented model | `python -m src.freeze_model --run-id cnn_aug_seed_42 --out results/week7_improved` |
+| Evaluate augmented model (once) | `python -m src.evaluate --frozen results/week7_improved/frozen_config.json --out results/week7_improved` |
+
+### Final test results (frozen CNN)
+
+| Metric | Value |
+|---|---|
+| Test images | 10,000 |
+| Errors | 97 |
+| Test accuracy | 99.03% (approximate 95% interval 98.84%-99.22%) |
+| Test loss | 0.030765 |
+| Validation accuracy (for comparison) | 98.65% |
+| Validation loss (for comparison) | 0.048649 |
+
+The interval reflects finite test-set size. It does not include seed variation or the effect of checkpoint selection on validation data.
+
+**Per-class metrics**
+
+| Digit | Precision | Recall | F1 | Support |
+|---|---:|---:|---:|---:|
+| 0 | 0.9928 | 0.9908 | 0.9918 | 980 |
+| 1 | 0.9921 | 0.9956 | 0.9938 | 1135 |
+| 2 | 0.9942 | 0.9884 | 0.9913 | 1032 |
+| 3 | 0.9921 | 0.9921 | 0.9921 | 1010 |
+| 4 | 0.9889 | 0.9980 | 0.9934 | 982 |
+| 5 | 0.9866 | 0.9888 | 0.9877 | 892 |
+| 6 | 0.9917 | 0.9937 | 0.9927 | 958 |
+| 7 | 0.9798 | 0.9893 | 0.9845 | 1028 |
+| 8 | 0.9907 | 0.9867 | 0.9887 | 974 |
+| 9 | 0.9940 | 0.9792 | 0.9865 | 1009 |
+| Macro average | 0.9903 | 0.9902 | 0.9903 | 10,000 |
+| Weighted average | 0.9903 | 0.9903 | 0.9903 | 10,000 |
+
+Digit 9 has the lowest recall (97.92%), making it the main class-level weakness. Digit 7 has the lowest precision (97.98%). These two measures can identify different problem directions.
+
+**Confusion matrix:** [`results/week7/confusion_matrix.png`](results/week7/confusion_matrix.png), with true class on rows and predicted class on columns. Errors only: [`results/week7/confusion_matrix_errors_only.png`](results/week7/confusion_matrix_errors_only.png).
+
+The three largest confusions are 9→4 (8), 2→7 (6), and 9→7 (6). They are not symmetric: 4→9 has 0, 7→2 has 4, and 7→9 has 1.
+
+### Error analysis
+
+- **Sample:** all test errors are listed in [`results/week7/errors.csv`](results/week7/errors.csv) with true label, predicted label and all ten scores. A seeded random sample and the most confident errors are in [`results/week7/error_gallery/`](results/week7/error_gallery/).
+- **Scores:** 32 errors had a top score above 0.90 and 9 had a top score above 0.99. The true class was ranked 2nd in 80 cases. The first-pass annotations were drafted with AI assistance from the gallery and reviewed by a single annotator.
+- **Manual grouping** (`results/week7/error_annotation.csv`, one primary category per error, subjective):
+
+| Category | Count | Share |
+|---|---:|---:|
+| ambiguous_stroke | 31 | 32.0% |
+| unusual_shape | 35 | 36.1% |
+| slanted_or_rotated | 9 | 9.3% |
+| thin_or_faint | 10 | 10.3% |
+| broken_or_cut_off | 6 | 6.2% |
+| label_questionable | 4 | 4.1% |
+| other | 2 | 2.1% |
+
+- **Observed:** unusual or highly atypical strokes appeared in 35 errors, including looped 2s and blob-like 1s/4s/6s. Ambiguous stroke boundaries appeared in 31 errors, especially 3/5 and 9/4 pairs. Thin, faint, broken and strongly slanted samples accounted for another 25 examples. Four examples were questionable MNIST labels.
+- **Plausible but untested explanations:** unusual samples may be underrepresented relative to standard MNIST strokes, and stroke loss or translation may move a digit outside the learned shape pattern. These mechanisms are hypotheses, not established causes.
+
+Confident mistakes confirm that softmax output is not a guarantee. Examples include 8→0 at 0.9996, 8→0 at 0.9994, 8→9 at 0.9890, and 5→6 at 0.9983.
+
+### Generalisation gap
+
+| Measure | Value |
+|---|---|
+| Frozen CNN, training partition (inference mode) | accuracy 99.385%, loss 0.021902 |
+| Frozen CNN, validation partition | accuracy 98.65%, loss 0.048649 |
+| Accuracy gap (train - validation) | 0.735 percentage points |
+| Validation loss rise after best epoch | 0.005973 from epoch 5 to epoch 15 |
+| Test accuracy vs validation accuracy | 99.03% vs 98.65% |
+
+The gap is small at the selected checkpoint. Validation loss rises after epoch 5 while training loss continues to fall, providing modest evidence of later-epoch overfitting. The test result is better than the validation result and should not be interpreted as evidence that the model is guaranteed to generalize; the interval and held-out sampling are still finite.
+
+### Robustness (exploratory, validation set)
+
+Transformations and severities were defined before running. These transformed images are **not** an independent real-world benchmark.
+
+| Transformation | Level | Accuracy | Change |
+|---|---|---|---|
+| Original | - | 98.65% | - |
+| Rotation | ±15° | 97.17% / 96.75% | -1.48 / -1.90 points |
+| Rotation | ±30° | 83.47% / 85.17% | -15.18 / -13.48 points |
+| Scale | 0.6 / 1.4 | 63.68% / 89.80% | -34.97 / -8.85 points |
+| Vertical shift | ±2 px | 92.15% / 92.72% | -6.50 / -5.93 points |
+| Vertical shift | ±4 px | 49.58% / 48.87% | -49.07 / -49.78 points |
+| Blur | sigma 0.5 / 1.5 | 98.55% / 92.75% | -0.10 / -5.90 points |
+| Noise | std 0.1 / 0.4 | 98.40% / 85.72% | -0.25 / -12.93 points |
+| Contrast | 0.6 / 0.15 | 98.65% / 97.12% | 0.00 / -1.53 points |
+| Inversion | on | 27.32% | -71.33 points |
+
+**Non-digit inputs:** blank -> predicted 1 (score 0.1455); all-white -> predicted 0 (score 0.7111); random noise -> mean top score 0.4153. The app must reject, confirm or route low-confidence/non-digit input rather than treating a predicted digit as valid. Softmax score alone cannot reliably detect out-of-distribution input.
+
+Plots: [`results/week7_robustness/robustness_curves.png`](results/week7_robustness/robustness_curves.png), [`results/week7_robustness/transformation_examples.png`](results/week7_robustness/transformation_examples.png).
+
+### Improvement experiment: data augmentation
+
+**Pre-registered plan** (`results/week7_improvement/plan.md`, committed before training):
+
+- Training-time augmentation: `RandomRotation(0.04)` (about ±14°), `RandomTranslation(0.1, 0.1)`, `RandomZoom(0.1)`, black fill.
+- Parameter count unchanged at 225,034.
+- Everything else identical to the baseline CNN, with seeds 42, 1, 2 and 3.
+- **Decision rule (validation only):** adopt if mean validation loss is lower and mean validation accuracy is higher than baseline across four seeds.
+
+**Validation results (measured)**
+
+| | Baseline CNN | Augmented CNN |
+|---|---:|---:|
+| Mean validation accuracy | 98.74% | 99.02% |
+| Accuracy range (4 seeds) | 98.65%-98.83% | 98.98%-99.10% |
+| Mean validation loss | 0.0460 | 0.0337 |
+| Validation errors per seed (of 6,000) | 70-81 | 54-61 |
+| Best epochs | 5, 9, 5, 7 | 12, 12, 15, 15 |
+| Mean training time | 186 s | 256 s |
+
+**Decision:** both conditions held, so augmentation was **adopted** under the rule. Accuracy ranges do not overlap across seeds, and training took about 38% longer. The gain is about 17 validation images of 6,000 (+0.28 percentage points). Both augmented runs reaching epoch 15 means the true gain may have been affected by the fixed training budget.
+
+**Candidate chosen in advance:** the seed-42 augmented model, frozen as `model-aug-frozen` before its single test evaluation.
+
+**Test result for the augmented model (evaluated once, reported next to the original):**
+
+| | Frozen CNN (baseline) | Augmented CNN |
+|---|---:|---:|
+| Test accuracy | 99.03% | 99.19% |
+| Approximate 95% interval | 98.84%-99.22% | 99.01%-99.37% |
+| Test errors | 97 | 81 |
+| Test loss | 0.030765 | 0.026569 |
+
+The approximate intervals overlap, so the test-set improvement of 16 correct images should not be described as statistically distinguished with this procedure. The original frozen CNN result is preserved rather than replaced.
+
+**Robustness comparison (secondary, exploratory):** augmentation improved the validation-set vertical shift from 49.58%/48.87% to 95.53%/94.42% at ±4 px, and improved scale, blur and normal noise. The ±30° rotation result improved from roughly 83%-85% to 92%-93%. It did not improve every perturbation: strong noise (std 0.4) fell from 85.72% to 46.92%, and inversion fell from 27.32% to 21.68%; these transformations were outside the training augmentation.
+
+### Limitations (Week 7)
+
+- Everything is MNIST-only; performance on phone photos, coloured backgrounds or other writing styles is not measured.
+- Error categories are a single annotator's visual judgement, partly drafted with AI assistance.
+- Improvement proposals were informed by test errors. Diagnosis does not mean test data was used for model tuning, but test observations informed which candidate to analyse.
+- The augmented model's test evaluation is a second use of the test set for one pre-registered candidate.
+- Four seeds per model provide limited evidence of sampling variability.
+- Robustness results are exploratory, use one severity set and are not a real-world benchmark.
+- `src/freeze_model.py` and `src/evaluate.py` gained an `--out` option after the original freeze; default behaviour is unchanged.
+- Timings come from one CPU.
+
+### Prioritised improvements
+
+1. **Preprocessing alignment for app uploads**: centring, scaling and polarity handling address scale, shift and inversion failures. Cost: extra preprocessing code and UI testing. Failure mode: careless cropping or automatic inversion can change otherwise valid predictions.
+2. **Retain data augmentation**: the candidate improved validation and test accuracy and vertical/scale robustness. Cost: about 38% longer mean training time. Failure mode: it does not correct ambiguous digits or questionable labels and can lose accuracy at extreme untrained perturbations.
+3. **Add out-of-distribution and class-9 checks**: reject blank/noisy inputs and inspect hard 9→4/9→7 examples. Cost: requires calibration/OOD data and additional validation. Failure mode: strict thresholds may reject valid handwriting, while weak thresholds can leave confident false predictions.
+
+### Documents
+
+- Technical evaluation report: `results/week7_technical_note.md`
+- Part B notes: `results/week7_partB_notes.md`
+- Freeze records: `results/week7/frozen_config.json`, `results/week7_improved/frozen_config.json`
+- Git tags: `model-frozen`, `model-aug-frozen`, `week7-partA`, `week7-partB`
+
+### Next step
+
+Week 8: build the Streamlit upload app, implement and test the preprocessing contract (including blank, inverted and corrupt inputs), complete this README and prepare the five-minute demonstration.
+
 
 ### References
 

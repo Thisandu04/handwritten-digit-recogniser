@@ -1,0 +1,66 @@
+[
+  {
+    "family": "rotation (deg)",
+    "identity": 0,
+    "levels": [
+      -30,
+      -15,
+      15,
+      30
+    ]
+  },
+  {
+    "family": "scale (factor)",
+    "identity": 1.0,
+    "levels": [
+      0.6,
+      0.8,
+      1.2,
+      1.4
+    ]
+  },
+  {
+    "family": "vertical shift (px)",
+    "identity": 0,
+    "levels": [
+      -4,
+      -2,
+      2,
+      4
+    ]
+  },
+  {
+    "family": "blur (sigma)",
+    "identity": 0,
+    "levels": [
+      0.5,
+      1.0,
+      1.5
+    ]
+  },
+  {
+    "family": "noise (std)",
+    "identity": 0,
+    "levels": [
+      0.1,
+      0.2,
+      0.4
+    ]
+  },
+  {
+    "family": "contrast (factor)",
+    "identity": 1.0,
+    "levels": [
+      0.6,
+      0.3,
+      0.15
+    ]
+  },
+  {
+    "family": "inversion (0=orig)",
+    "identity": 0,
+    "levels": [
+      1
+    ]
+  }
+]
