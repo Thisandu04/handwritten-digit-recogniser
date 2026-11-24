@@ -1,0 +1,23 @@
+{
+  "n": 2000,
+  "set": "validation",
+  "results": {
+    "direct_28x28": {
+      "accuracy": 0.994,
+      "rejected": 0
+    },
+    "pipeline_native_28x28": {
+      "accuracy": 0.992,
+      "rejected": 0
+    },
+    "pipeline_drawn_10x_dark_on_light": {
+      "accuracy": 0.991,
+      "rejected": 0
+    },
+    "pipeline_small_off_centre": {
+      "accuracy": 0.992,
+      "rejected": 0
+    }
+  },
+  "note": "images rendered from MNIST; a consistency check, not a real-world benchmark"
+}

@@ -1,0 +1,23 @@
+{
+  "source_run_id": "cnn_aug_seed_42",
+  "source_model_path": "models\\cnn_aug_seed_42_best.keras",
+  "app_model_path": "models\\digit_cnn.keras",
+  "sha256": "50d4a3bb81e67f1cf4c24e273672135db1a149dab27b5667fe0b8b4ec564e319",
+  "size_mb": 2.75,
+  "parameter_count": 225034,
+  "architecture": {
+    "type": "cnn",
+    "blocks": "2 x Conv2D 3x3 ReLU; filters 32, 64",
+    "pooling": "max 2x2 after each conv",
+    "head": "Flatten -> Dense(128, ReLU) -> Dense(10, softmax)",
+    "padding": "valid",
+    "augmentation": "RandomRotation(0.04) + RandomTranslation(0.1, 0.1) + RandomZoom(0.1), fill 0, training only"
+  },
+  "training_preprocessing": "pixels / 255.0 -> float32 in [0, 1]; channel axis added -> (28, 28, 1)",
+  "validation_accuracy": 0.9898333549499512,
+  "validation_loss": 0.03317590802907944,
+  "versions": {
+    "tensorflow": "2.22.0-rc0",
+    "keras": "3.16.0.dev2026102704"
+  }
+}
