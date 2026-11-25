@@ -7,3 +7,4 @@ __pycache__/
 .keras/
 models/cnn_no_pool_best.keras
 models/*_seed_*.keras
+test_images/generated/
