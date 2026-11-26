@@ -8,7 +8,7 @@ The focus is on justified technical decisions, reproducible experiments and hone
 
 | Valid digit | Handled error (blank image) |
 |---|---|
-| ![Valid digit](results\screenshots\Screenshot 2026-11-25 122033.png) | ![Rejected blank image](results\screenshots\Screenshot 2026-11-25 122917.png) |
+| ![Valid digit](results\screenshots\01_valid_digit.png) | ![Rejected blank image](results\screenshots\04_rejected_blank.png) |
 
 More: white-on-black input (`02_`), multiple-digit warning (`03_`), corrupt file (`05_`), upload limit (`06_`) and limitations sidebar (`07_`) in `results/screenshots/`.
 
