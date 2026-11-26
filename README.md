@@ -4,6 +4,28 @@ A convolutional neural network (CNN) that classifies handwritten digits (0-9), t
 
 The focus is on justified technical decisions, reproducible experiments and honest analysis of limitations, not only on accuracy.
 
+## Demo screenshots of the app for 0-9 digits:
+
+<img width="534" height="906" alt="Screenshot 2026-11-26 162247" src="https://github.com/user-attachments/assets/fc61a372-4aed-4f40-82b0-5b7d606a9860" />
+
+<img width="520" height="898" alt="Screenshot 2026-11-26 162310" src="https://github.com/user-attachments/assets/4a5aaac4-e586-483d-b553-bc4a0ee06354" />
+
+<img width="534" height="905" alt="Screenshot 2026-11-26 162333" src="https://github.com/user-attachments/assets/eed5301a-0300-48fb-b53c-a3fe2ee96ac5" />
+
+<img width="514" height="904" alt="Screenshot 2026-11-26 162356" src="https://github.com/user-attachments/assets/88dd849d-0f4d-4b55-8365-8a171e539f22" />
+
+<img width="521" height="898" alt="Screenshot 2026-11-26 162414" src="https://github.com/user-attachments/assets/6c84471a-46e8-427f-843e-ecb4602ab32b" />
+
+<img width="534" height="901" alt="Screenshot 2026-11-26 162435" src="https://github.com/user-attachments/assets/25c8c4d2-1116-4d70-ab36-935e40712302" />
+
+<img width="516" height="887" alt="Screenshot 2026-11-26 162456" src="https://github.com/user-attachments/assets/86e950dd-24c4-4d84-a416-bd4b21d7b6a4" />
+
+<img width="561" height="884" alt="Screenshot 2026-11-26 162527" src="https://github.com/user-attachments/assets/62b824a1-102f-4842-b659-4ebf5db0b467" />
+
+<img width="548" height="890" alt="Screenshot 2026-11-26 162545" src="https://github.com/user-attachments/assets/a880277e-f6ff-4092-95d6-23029224d715" />
+
+<img width="551" height="880" alt="Screenshot 2026-11-26 162604" src="https://github.com/user-attachments/assets/343a2ae1-eba1-44cc-a6e9-0635cd35f99a" />
+
 ## Screenshots
 
 | Valid digit | Handled error (blank image) |
