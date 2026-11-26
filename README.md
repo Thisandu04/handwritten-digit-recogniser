@@ -1,15 +1,192 @@
 # Handwritten Digit Recogniser
 
-A CNN-based handwritten digit classifier trained on MNIST, with a Streamlit app for inference.
+A convolutional neural network (CNN) that classifies handwritten digits (0-9), trained and evaluated on MNIST, with a Streamlit app that accepts an uploaded image of a single digit. Built as Project 2 of a 12-week AI/ML student development programme (Weeks 5-8).
 
+The focus is on justified technical decisions, reproducible experiments and honest analysis of limitations, not only on accuracy.
+
+## Screenshots
+
+| Valid digit | Handled error (blank image) |
+|---|---|
+| ![Valid digit](results/screenshots/01_valid_digit.png) | ![Rejected blank image](results/screenshots/04_rejected_blank.png) |
+
+More: white-on-black input (`02_`), multiple-digit warning (`03_`), corrupt file (`05_`), upload limit (`06_`) and limitations sidebar (`07_`) in `results/screenshots/`.
+
+## Key results
+
+| Model | Params | Val accuracy | Test accuracy | Notes |
+|---|---|---|---|---|
+| Dense baseline | 101,770 | 97.37% | not evaluated | Week 5 baseline, validation only |
+| CNN (frozen in Week 7) | 225,034 | 98.65% | 99.03% | Evaluated once on the 10,000 test images |
+| CNN + augmentation (app model) | 225,034 | 98.98% (seed 42) | 99.19% | Adopted by a pre-registered validation rule; evaluated once |
+
+- Validation numbers are for seed 42. Across four seeds the augmented CNN averaged 99.02% against 98.74% for the baseline CNN.
+- The augmented app model's test accuracy has an approximate 95% interval of ±0.18 percentage points (test-set size only; it ignores seed variation).
+- On the frozen baseline test set, the weakest class was digit 9 (recall 97.92%); the most frequent confusion was 9 predicted as 4 (8 cases).
+- Full evaluation: `results/week7_evaluation_report.md`.
+
+## Quick start
+
+Tested with Python 3.14.4 on Windows. Package versions are listed below.
+
+```powershell
+git clone https://github.com/Thisandu04/handwritten-digit-recogniser.git
+cd handwritten-digit-recogniser
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -m streamlit run app/app.py
+```
+
+On macOS/Linux, activate with `source .venv/bin/activate`. The trained model (`models/digit_cnn.keras`) is included in the repository, so no training is needed to run the app. Then open http://localhost:8501 and upload a PNG or JPG of a single digit.
+
+**Versions used:** Python 3.14.4, TensorFlow 2.22.0-rc0, Keras 3.16.0.dev2026102704, Streamlit 1.66.1. See `requirements.txt`.
+
+## How the app behaves
+
+| Situation | Behaviour |
+|---|---|
+| Valid single digit | Shows the processed 28x28 input, the model's top prediction and all ten model scores |
+| Warning cases (several digits, digit cut off, low top score) | Shows the result and a visible warning |
+| Blank, near-blank, corrupt, too large or too small | Shows an error and no prediction |
+| Non-digit image with plenty of ink | Not detectable; may return a prediction (documented limitation) |
+
+Limits: PNG or JPG, at most 5 MB, at most 25 megapixels, one digit per image. Uploads are processed in memory and not saved. Scores are softmax outputs, not calibrated probabilities.
+
+## Project structure
+
+```
+handwritten-digit-recogniser/
+├── app/               # Streamlit interface (app.py)
+├── src/               # Reusable code and scripts
+│   ├── data.py            # loading, scaling, fixed train/validation split
+│   ├── models.py          # dense baseline and CNN definitions
+│   ├── preprocessing.py   # upload preprocessing contract (no model/UI code)
+│   ├── inference.py       # model loading and prediction (no UI code)
+│   ├── app_logic.py       # combines preprocessing + prediction for the app
+│   └── ...                # training, evaluation and investigation scripts
+├── tests/             # automated tests (preprocessing and app logic)
+├── models/            # saved models (digit_cnn.keras is the app model)
+├── results/           # run records, plots, reports, screenshots
+├── notebooks/         # unused (see notebooks/README.md)
+├── .streamlit/        # Streamlit config (5 MB upload limit)
+├── requirements.txt
+└── README.md
+```
+
+**Why this layout:** training, evaluation, preprocessing and the interface are separate, so nothing depends on notebook execution order and the preprocessing can be tested without the UI or the model.
+
+## Data provenance
+
+- **Dataset:** MNIST (LeCun, Cortes and Burges), loaded through `keras.datasets.mnist`.
+- **Size:** 60,000 training and 10,000 test images, 28x28 grayscale, labels 0-9.
+- **Split:** 10% of the training portion (6,000 images) for validation, stratified, `random_state=42`, defined once in `src/data.py` and shared by every run.
+- **Test set:** used only after the model configuration was frozen (Week 7); never for model selection or tuning.
+- **Preprocessing for training:** pixels divided by 255 (float32 in [0, 1]); a channel axis is added for the CNN.
+
+## Model architecture
+
+| # | Layer | Output shape | Parameters |
+|---|---|---|---|
+| 1 | Input | (28, 28, 1) | 0 |
+| 2 | Training-only augmentation: RandomRotation, RandomTranslation, RandomZoom | (28, 28, 1) | 0 |
+| 3 | Conv2D 32 filters, 3x3, ReLU | (26, 26, 32) | 320 |
+| 4 | MaxPooling2D 2x2 | (13, 13, 32) | 0 |
+| 5 | Conv2D 64 filters, 3x3, ReLU | (11, 11, 64) | 18,496 |
+| 6 | MaxPooling2D 2x2 | (5, 5, 64) | 0 |
+| 7 | Flatten | 1,600 | 0 |
+| 8 | Dense 128, ReLU | 128 | 204,928 |
+| 9 | Dense 10, softmax | 10 | 1,290 |
+| | **Total** | | **225,034** |
+
+Design rationale: two convolution + pooling blocks extract local features with shared weights, max-pooling reduces computation and gives some shift tolerance, and a small dense head classifies. Removing pooling made the model 21x larger and about 4.7x slower to train with no accuracy benefit (Week 6).
+
+## Experimental configuration
+
+| Setting | Value |
+|---|---|
+| Optimiser | Adam, learning rate 0.001 |
+| Loss | Sparse categorical cross-entropy |
+| Batch size / epochs | 128 / 15 |
+| Model selection rule | Lowest validation loss (checkpoint) |
+| Seeds | 42 (main), plus 1, 2, 3 for stability |
+| Augmentation (adopted) | Rotation about ±14°, translation up to 10%, zoom ±10%, black fill, training only |
+
+Every run saves `results/<run_id>/run_record.json` with its seed, split, preprocessing, architecture, parameters, optimiser settings, epoch-wise metrics, training time and model path. Seeds are fixed, but exact reproducibility can still vary with hardware and library versions.
+
+## Commands
+
+All commands run from the project root.
+
+| Task | Command |
+|---|---|
+| Explore the data | `python -m src.explore_data` |
+| Train dense baseline | `python -m src.train_dense --run-id dense_baseline` |
+| Train CNN | `python -m src.train_cnn --run-id cnn_baseline` |
+| Train augmented CNN | `python -m src.train_cnn --run-id cnn_aug_seed_42 --augment` |
+| Compare models | `python -m src.compare_models --runs dense_baseline cnn_baseline` |
+| Freeze a model | `python -m src.freeze_model --run-id cnn_baseline` |
+| Evaluate on the test set (once) | `python -m src.evaluate` |
+| Export the model for the app | `python -m src.export_app_model --run-id cnn_aug_seed_42` |
+| Run the app | `python -m streamlit run app/app.py` |
+| Run the tests | `python -m pytest -v` |
+| Generate manual test images | `python -m src.make_test_images` |
+
+## Preprocessing contract (uploads)
+
+1. Decode the bytes, enforce size limits, fix EXIF orientation.
+2. Composite transparency onto white; convert to grayscale.
+3. Detect polarity from the image border and convert to a light digit on a dark background (the model was trained on white-on-black).
+4. Subtract the background level; reject blank or low-contrast images.
+5. Threshold to find strokes; reject images with almost no ink; warn on several digits or edge contact.
+6. Crop to the strokes and resize to fit a 20x20 box, keeping the aspect ratio (squashing a narrow digit would change the prediction).
+7. Paste into a 28x28 canvas and centre by centre of mass, as MNIST itself was prepared.
+8. Output float32 in [0, 1] with shape (1, 28, 28, 1).
+
+## Testing
+
+- `tests/test_preprocessing.py`: 24 tests covering the output contract, repeatability, polarity, margins and sizes, aspect ratio, JPEG and transparent PNG, blank and near-blank images, multiple digits, edge contact, and corrupt, truncated, oversized and tiny files.
+- `tests/test_app_logic.py`: 17 tests running the real saved model on rendered variants of validation digits (100% agreement with direct 28x28 predictions across five variants, 40 validation digits per variant), negative inputs and a non-digit image.
+- Manual app test log: `results/week8/app_test_log.md`.
+- Pipeline consistency check (validation images rendered as uploads): `results/week8/pipeline_alignment.json`.
+
+Run the automated tests with `python -m pytest -v`. The first run downloads MNIST into the Keras cache.
+
+## Limitations
+
+- Trained on MNIST only: clean, centred digits. In the single recorded phone-photo trial, the app predicted 5 without a warning; this is not a real-world robustness benchmark.
+- One digit per image. Several digits produce a warning, not a correct reading.
+- The app cannot confirm that an image contains a digit; the recorded stripes test returned a prediction of 8 with a warning.
+- Softmax scores are model outputs, not calibrated probabilities. Confident mistakes exist (Weeks 5 and 7).
+- Polarity detection assumes the border is mostly background.
+- Robustness tests were exploratory and are not a real-world benchmark.
+- Error categories came from a single annotator's visual judgement (first pass drafted with AI assistance, then reviewed).
+- Timings were measured on one CPU.
+
+## Improvement opportunities
+
+1. **Better preprocessing for real photos** (uneven-lighting correction, adaptive thresholding): benefit is robustness to phone photos; cost is more code and tuning; risk is that aggressive cleanup removes real strokes.
+2. **Training on more varied data** (for example handwriting sets other than MNIST): benefit is wider style coverage; cost is new data handling and relabelling checks; risk is label noise.
+3. **Out-of-distribution rejection** (a "not a digit" class or a learned rejection score): benefit is rejecting doodles and stripes; cost is extra training data; risk is rejecting valid but unusual digits.
+4. **Improve digit-9 discrimination**: digit 9 had the lowest baseline test recall (97.92%) and was most often confused with 4 (8 cases). Cost: targeted data and validation experiments. Risk: improving recall may reduce precision for visually similar digits.
+
+## Attribution
+
+- **Implemented by me:** the project code in `src/`, `app/` and `tests/`, the experiments, the analysis and the written reports.
+- **Supplied by libraries:** TensorFlow/Keras (layers, optimiser, training), scikit-learn (split, metrics), SciPy and Pillow (image operations), Streamlit (interface), pytest.
+- **References:** TensorFlow CNN tutorial (https://www.tensorflow.org/tutorials/images/cnn), MNIST (https://www.tensorflow.org/datasets/catalog/mnist), Keras (https://keras.io/), scikit-learn metrics (https://scikit-learn.org/stable/modules/model_evaluation.html), Streamlit (https://docs.streamlit.io/).
+- **AI assistance:** AI was used to draft the first-pass test-error annotations, which I reviewed.
+
+---
 ## Progress
 
 - [x] **Week 5:** Dataset analysis and dense baseline
 - [x] **Week 6:** CNN design, training and baseline comparison
 - [x] **Week 7:** Test evaluation, error analysis and report
-- [ ] **Week 8:** Streamlit app, tests, documentation and demo of the project
+- [x] **Week 8:** Streamlit app, tests, documentation and demo of the project
 
 ---
+## Development log (Weeks 5-8)
 
 ## Week 5: Neural-network foundations and dense baseline
 
@@ -26,8 +203,8 @@ Understand and inspect the MNIST dataset, then build a reproducible dense (fully
 - **Preprocessing:** pixels divided by 255, giving float32 values in [0, 1]. This keeps inputs in a small range, which generally helps gradient-based optimisation.
 
 **Observations from the data:**
-- *(Class balance: which classes are largest/smallest, and by how much.)*
-- *(Visual variation: stroke width, slant, alignment, ambiguous pairs such as 4/9 or 1/7.)*
+- Training class counts ranged from 5,421 for digit 5 to 6,742 for digit 1, a difference of 1,321 across 60,000 images.
+- In the later test-error review, 35 of 97 errors were annotated as unusual shapes and 31 as ambiguous strokes; these are subjective categories, not population-wide measurements.
 
 ### Project structure
 
@@ -85,26 +262,26 @@ Each run writes `results/<run_id>/run_record.json` (seed, split, architecture, p
 
 | Run | Learning rate | Best epoch | Val loss | Val accuracy | Training time (s) |
 |---|---|---|---|---|---|
-| dense_lr_0.0001 | 0.0001 | 15 | 0.1663 | 0.9736 | 19.2 |
-| dense_baseline | 0.001 | 9 | 0.0989 | 0.9536 | 20.4 |
+| dense_lr_0.0001 | 0.0001 | 15 | 0.1663 | 0.9537 | 19.2 |
+| dense_baseline | 0.001 | 9 | 0.0989 | 0.9737 | 20.4 |
 | dense_lr_0.01 | 0.01 | 2 | 0.1195 | 0.9649 | 19.5 |
 
 **Learning curves:** `results/dense_baseline/learning_curves.png`
 
-**Interpretation:** *(2-3 sentences: does the smaller rate learn more slowly, is the larger rate less stable, is there evidence of overfitting?)*
+**Interpretation:** The 0.0001 learning rate improved more slowly and reached 95.37% validation accuracy only at epoch 15, with validation loss still decreasing. The 0.01 run reached its lowest validation loss at epoch 2, then its validation loss rose substantially; the 0.001 baseline peaked at epoch 9 and also showed later overfitting. Each setting was run once, so these curves are descriptive rather than evidence of seed-independent effects.
 
 **Caveat:** each configuration was run once with one seed, so small differences may be noise.
 
 ### Investigations
 
 **Flattening (`results/week5_flattening/`)**
-- *Pixel permutation:* baseline val accuracy `0.9737` vs permuted `0.9713`. *(What this implies about whether the dense model uses spatial layout.)*
-- *Translation sensitivity:* *(how accuracy changes from 0 to ±4 pixel shifts; see `shift_sensitivity_dense.png`.)*
+- *Pixel permutation:* baseline validation accuracy was 97.37% versus 97.13% with a fixed permutation. The dense model can learn with consistently reordered inputs; this small difference does not show that spatial layout is irrelevant.
+- *Translation sensitivity:* accuracy fell from 97.37% with no shift to 36.22% at -4 pixels and 34.58% at +4 pixels. At ±1 pixel it remained 94.03%-95.05%, showing that larger shifts are much more disruptive.
 
 **Softmax scores (`results/week5_softmax/`)**
-- *(Is accuracy close to mean confidence in each bin?)*
-- *(How many wrong predictions had a score above 0.9?)*
-- *(Score on a blank image and on random noise.)*
+- In the 0.99-1.00 confidence bin, mean confidence was 99.90% and accuracy was 99.65%; confidence tracked accuracy but was not perfectly calibrated.
+- 54 incorrect validation predictions had a top score above 0.90.
+- A blank image received a top score of 0.187; random noise had a mean top score of 0.882.
 - **Conclusion:** a softmax score is a model score, not a calibrated probability or a guarantee of correctness.
 
 ### Limitations
@@ -202,7 +379,7 @@ Four seeds per model (42, 1, 2, 3); the split stays fixed and only initialisatio
 | Dense |0.9736|0.0007|
 | CNN |0.9874|0.0009|
 
-*(State whether the two ranges overlap. With four seeds the standard deviation is crude, so report the range too.)*
+The four-seed ranges do not overlap: Dense was 97.25%-97.43%, while the CNN was 98.65%-98.83%. With only four seeds, these ranges and standard deviations are still crude estimates of run-to-run variation.
 
 ### Reload verification
 
@@ -222,7 +399,7 @@ Horizontal shifts of -4 to +4 pixels with zero fill, defined in advance. These t
 | +2 |0.8289|0.9606|
 | +4 |0.3458|0.6971|
 
-Plot: `results/week6_shift/shift_sensitivity_dense_vs_cnn.png`. *(Describe how each model degrades. Pooling gives some tolerance to small shifts, not full invariance, and the CNN was never trained on shifted digits.)*
+Plot: `results/week6_shift/shift_sensitivity_dense_vs_cnn.png`. At ±4 pixels, dense accuracy fell to 36.22% and 34.58%, while CNN accuracy was 74.38% and 69.71%. At ±1 pixel, the CNN stayed near 98.2% versus 94.0%-95.1% for the dense model. The CNN is more tolerant of these shifts, but not invariant; it was not trained on shifted digits.
 
 ### Repository notes
 
@@ -422,9 +599,38 @@ The approximate intervals overlap, so the test-set improvement of 16 correct ima
 - Freeze records: `results/week7/frozen_config.json`, `results/week7_improved/frozen_config.json`
 - Git tags: `model-frozen`, `model-aug-frozen`, `week7-partA`, `week7-partB`
 
-### Next step
 
-Week 8: build the Streamlit upload app, implement and test the preprocessing contract (including blank, inverted and corrupt inputs), complete this README and prepare the five-minute demonstration.
+---
+
+## Week 8: Application, tests and delivery
+
+### What was built
+
+- `src/preprocessing.py`: the preprocessing contract above, with no model or UI code.
+- `src/inference.py`: model loading and prediction. The app loads the model once with Streamlit caching.
+- `src/app_logic.py`: combines preprocessing and prediction and returns a status (`ok`, `warning`, `rejected`) without raising on bad user input.
+- `app/app.py`: the Streamlit interface (upload, ink-colour option, processed input, model's top prediction, score chart, warnings and errors, limitations sidebar).
+- `src/export_app_model.py`: copies the chosen model to `models/digit_cnn.keras` and records its hash and source run in `models/digit_cnn_info.json`.
+
+### Results
+
+| Check | Result |
+|---|---|
+| Automated tests | 41 passed |
+| Pipeline consistency (2,000 rendered validation images) | direct 28x28 99.4%, native 99.2%, drawn 10x 99.1%, small off-centre 99.2% |
+| Manual app tests (14 inputs) | 5 of 14 met the logged expectations; see `results/week8/app_test_log.md` |
+| Phone photo | Predicted 5 without a warning (one trial) |
+
+### Observations
+
+- Selecting the wrong ink colour caused the image to be rejected as blank or too low-contrast. The stripes input was classified as 8 with a warning.
+- The recorded manual UI tests also found unhandled errors/crashes for corrupt or fake images, oversized uploads, and unsupported text files.
+
+### Documents
+
+- Test log: `results/week8/app_test_log.md`
+- Screenshots: `results/screenshots/`
+- Demo notes: `results/week8/demo_plan.md`
 
 
 ### References
